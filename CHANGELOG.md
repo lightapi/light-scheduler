@@ -6,6 +6,8 @@
 **Merged pull requests:**
 
 
+
+
 ## [2.2.1](https://github.com/networknt/light-scheduler/tree/2.2.1) (2025-03-22)
 
 
