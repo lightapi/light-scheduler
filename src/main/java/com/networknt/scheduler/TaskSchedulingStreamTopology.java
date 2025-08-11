@@ -1,7 +1,7 @@
 package com.networknt.scheduler;
 
 import com.networknt.config.Config;
-import com.networknt.kafka.common.KafkaStreamsConfig;
+import com.networknt.kafka.common.config.KafkaStreamsConfig;
 import com.networknt.service.SingletonServiceFactory;
 import io.confluent.kafka.schemaregistry.client.SchemaRegistryClient;
 import io.confluent.kafka.streams.serdes.avro.SpecificAvroSerde;
@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 public class TaskSchedulingStreamTopology {
     private final static Logger logger = LoggerFactory.getLogger(TaskSchedulingStreamTopology.class);
-    static final KafkaStreamsConfig streamsConfig = (KafkaStreamsConfig) Config.getInstance().getJsonObjectConfig(KafkaStreamsConfig.CONFIG_NAME, KafkaStreamsConfig.class);
+    static final KafkaStreamsConfig streamsConfig = KafkaStreamsConfig.load();
     static final SchedulerConfig schedulerConfig = (SchedulerConfig) Config.getInstance().getJsonObjectConfig(SchedulerConfig.CONFIG_NAME, SchedulerConfig.class);
 
     public Topology buildTaskStreamingTopology() {
@@ -48,13 +48,13 @@ public class TaskSchedulingStreamTopology {
 
     private static SpecificAvroSerde<TaskDefinitionKey> getTaskDefinitionKeySpecificAvroSerde() {
         final SpecificAvroSerde<TaskDefinitionKey> changeEventSpecificAvroSerde = new SpecificAvroSerde<>(SingletonServiceFactory.getBean(SchemaRegistryClient.class));
-        changeEventSpecificAvroSerde.configure(streamsConfig.getProperties(), true);
+        changeEventSpecificAvroSerde.configure(streamsConfig.getProperties().getMergedProperties(), true);
         return changeEventSpecificAvroSerde;
     }
 
     private static SpecificAvroSerde<TaskDefinition> getTaskDefinitionSpecificAvroSerde() {
         final SpecificAvroSerde<TaskDefinition> changeEventSpecificAvroSerde = new SpecificAvroSerde<>(SingletonServiceFactory.getBean(SchemaRegistryClient.class));
-        changeEventSpecificAvroSerde.configure(streamsConfig.getProperties(), false);
+        changeEventSpecificAvroSerde.configure(streamsConfig.getProperties().getMergedProperties(), false);
         return changeEventSpecificAvroSerde;
     }
 

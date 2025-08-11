@@ -1,7 +1,7 @@
 package com.networknt.scheduler;
 
 import com.networknt.config.Config;
-import com.networknt.kafka.common.KafkaStreamsConfig;
+import com.networknt.kafka.common.config.KafkaStreamsConfig;
 import com.networknt.kafka.streams.LightStreams;
 import org.apache.kafka.streams.KafkaStreams;
 import org.apache.kafka.streams.StreamsConfig;
@@ -13,14 +13,14 @@ import java.util.Properties;
 
 public class SchedulerStreams implements LightStreams {
     static private final Logger logger = LoggerFactory.getLogger(SchedulerStreams.class);
-    static final KafkaStreamsConfig config = (KafkaStreamsConfig) Config.getInstance().getJsonObjectConfig(KafkaStreamsConfig.CONFIG_NAME, KafkaStreamsConfig.class);
+    static final KafkaStreamsConfig config = KafkaStreamsConfig.load();
 
     private KafkaStreams schedulerStreams;
 
     private void startSchedulerStreams(String ip, int port) {
         TaskSchedulingStreamTopology topology = new TaskSchedulingStreamTopology();
         Properties streamsProps = new Properties();
-        streamsProps.putAll(config.getProperties());
+        streamsProps.putAll(config.getProperties().getMergedProperties());
         streamsProps.put(StreamsConfig.APPLICATION_SERVER_CONFIG, ip + ":" + port);
         schedulerStreams = new KafkaStreams(topology.buildTaskStreamingTopology(), streamsProps);
         schedulerStreams.setUncaughtExceptionHandler(ex -> {
@@ -28,7 +28,7 @@ public class SchedulerStreams implements LightStreams {
             return StreamsUncaughtExceptionHandler.StreamThreadExceptionResponse.REPLACE_THREAD;
         });
 
-        if(config.isCleanUp()) {
+        if(config.getCleanUp()) {
             schedulerStreams.cleanUp();
         }
         schedulerStreams.start();
