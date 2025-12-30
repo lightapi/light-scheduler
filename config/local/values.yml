@@ -1,10 +1,10 @@
 # producer format configuration
-kafka-producer.bootstrap.servers: localhost:9092
+kafka-producer.bootstrap.servers: localhost:9093
 kafka-producer.schema.registry.url: http://localhost:8081
 kafka-producer.keyFormat: avro
 kafka-producer.valueFormat: avro
 
 # streams configuration
-kafka-streams.bootstrap.servers: localhost:9092
+kafka-streams.bootstrap.servers: localhost:9093
 kafka-streams.schema.registry.url: http://localhost:8081
 kafka-streams.cleanUp: false

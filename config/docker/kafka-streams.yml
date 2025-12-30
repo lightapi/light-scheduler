@@ -1,6 +1,6 @@
 # Generic Kafka Streams Configuration
 properties:
-  bootstrap.servers: ${kafka-streams.bootstrap.servers:localhost:9092}
+  bootstrap.servers: ${kafka-streams.bootstrap.servers:localhost:9093}
   # Kafka Streams will use the schema for deserialization from byte array
   key.deserializer: ${kafka-streams.key.deserializer:org.apache.kafka.common.serialization.ByteArrayDeserializer}
   value.deserializer: ${kafka-streams.value.deserializer:org.apache.kafka.common.serialization.ByteArrayDeserializer}

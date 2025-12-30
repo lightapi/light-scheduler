@@ -6,7 +6,7 @@ properties:
   value.serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
   # This value is a string, if using 1 or 0, you must use '1' or '0' as the value
   acks: ${kafka-producer.acks:all}
-  bootstrap.servers: ${kafka-producer.bootstrap.servers:localhost:9092}
+  bootstrap.servers: ${kafka-producer.bootstrap.servers:localhost:9093}
   buffer.memory: ${kafka-producer.buffer.memory:33554432}
   retries: ${kafka-producer.retries:3}
   batch.size: ${kafka-producer.batch.size:16384}
