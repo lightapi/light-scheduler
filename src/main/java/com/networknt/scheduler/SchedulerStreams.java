@@ -1,6 +1,5 @@
 package com.networknt.scheduler;
 
-import com.networknt.config.Config;
 import com.networknt.kafka.common.config.KafkaStreamsConfig;
 import com.networknt.kafka.streams.LightStreams;
 import org.apache.kafka.streams.KafkaStreams;
@@ -38,7 +37,6 @@ public class SchedulerStreams implements LightStreams {
     public void start(String ip, int port) {
         if(logger.isDebugEnabled()) logger.info("ServiceStreams is starting...");
         startSchedulerStreams(ip, port);
-        registerModule();
     }
 
     @Override
