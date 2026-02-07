@@ -4,19 +4,11 @@ package com.networknt.scheduler.handler;
 import com.networknt.client.Http2Client;
 import com.networknt.client.simplepool.SimpleConnectionHolder;
 import com.networknt.exception.ClientException;
-import com.networknt.openapi.OpenApiHandler;
-import com.networknt.openapi.ResponseValidator;
-import com.networknt.openapi.SchemaValidator;
-import com.networknt.schema.SchemaValidatorsConfig;
-import com.networknt.status.Status;
-import com.networknt.utility.StringUtils;
 import io.undertow.UndertowOptions;
 import io.undertow.client.ClientConnection;
 import io.undertow.client.ClientRequest;
 import io.undertow.client.ClientResponse;
-import io.undertow.util.HeaderValues;
 import io.undertow.util.HttpString;
-import io.undertow.util.Headers;
 import io.undertow.util.Methods;
 import org.junit.Assert;
 import org.junit.ClassRule;
@@ -24,10 +16,8 @@ import org.junit.Test;
 import org.junit.Ignore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xnio.IoUtils;
 import org.xnio.OptionMap;
 import java.net.URI;
-import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -52,7 +42,7 @@ public class SchedulersGetHandlerTest {
         final SimpleConnectionHolder.ConnectionToken connectionToken;
         try {
             if (enableHttps) {
-                connectionToken = client.borrow(new URI(url), Http2Client.WORKER, Http2Client.SSL,
+                connectionToken = client.borrow(new URI(url), Http2Client.WORKER, client.getDefaultXnioSsl(),
                         Http2Client.BUFFER_POOL,
                         enableHttp2 ? OptionMap.create(UndertowOptions.ENABLE_HTTP2, true) : OptionMap.EMPTY);
             } else {
@@ -65,7 +55,6 @@ public class SchedulersGetHandlerTest {
         final ClientConnection connection = (ClientConnection) connectionToken.connection().getRawConnection();
         final AtomicReference<ClientResponse> reference = new AtomicReference<>();
         String requestUri = "/schedulers";
-        String httpMethod = "get";
         try {
             ClientRequest request = new ClientRequest().setPath(requestUri).setMethod(Methods.GET);
 
@@ -81,7 +70,6 @@ public class SchedulersGetHandlerTest {
             client.restore(connectionToken);
         }
         String body = reference.get().getAttachment(Http2Client.RESPONSE_BODY);
-        int statusCode = reference.get().getResponseCode();
         Assert.assertNull(body);
     }
 }
