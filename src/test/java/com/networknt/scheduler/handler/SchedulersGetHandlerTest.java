@@ -2,6 +2,7 @@
 package com.networknt.scheduler.handler;
 
 import com.networknt.client.Http2Client;
+import com.networknt.client.simplepool.SimpleConnectionHolder;
 import com.networknt.exception.ClientException;
 import com.networknt.openapi.OpenApiHandler;
 import com.networknt.openapi.ResponseValidator;
@@ -30,7 +31,6 @@ import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
-
 @Ignore
 public class SchedulersGetHandlerTest {
     @ClassRule
@@ -49,23 +49,27 @@ public class SchedulersGetHandlerTest {
 
         final Http2Client client = Http2Client.getInstance();
         final CountDownLatch latch = new CountDownLatch(1);
-        final ClientConnection connection;
+        final SimpleConnectionHolder.ConnectionToken connectionToken;
         try {
-            if(enableHttps) {
-                connection = client.borrowConnection(new URI(url), Http2Client.WORKER, Http2Client.SSL, Http2Client.BUFFER_POOL, enableHttp2 ? OptionMap.create(UndertowOptions.ENABLE_HTTP2, true): OptionMap.EMPTY).get();
+            if (enableHttps) {
+                connectionToken = client.borrow(new URI(url), Http2Client.WORKER, Http2Client.SSL,
+                        Http2Client.BUFFER_POOL,
+                        enableHttp2 ? OptionMap.create(UndertowOptions.ENABLE_HTTP2, true) : OptionMap.EMPTY);
             } else {
-                connection = client.borrowConnection(new URI(url), Http2Client.WORKER, Http2Client.BUFFER_POOL, OptionMap.EMPTY).get();
+                connectionToken = client.borrow(new URI(url), Http2Client.WORKER, Http2Client.BUFFER_POOL,
+                        OptionMap.EMPTY);
             }
         } catch (Exception e) {
             throw new ClientException(e);
         }
+        final ClientConnection connection = (ClientConnection) connectionToken.connection().getRawConnection();
         final AtomicReference<ClientResponse> reference = new AtomicReference<>();
         String requestUri = "/schedulers";
         String httpMethod = "get";
         try {
             ClientRequest request = new ClientRequest().setPath(requestUri).setMethod(Methods.GET);
 
-            //customized header parameters
+            // customized header parameters
             request.getRequestHeaders().put(new HttpString("host"), "localhost");
             connection.sendRequest(request, client.createClientCallback(reference, latch));
 
@@ -74,7 +78,7 @@ public class SchedulersGetHandlerTest {
             logger.error("Exception: ", e);
             throw new ClientException(e);
         } finally {
-            client.returnConnection(connection);
+            client.restore(connectionToken);
         }
         String body = reference.get().getAttachment(Http2Client.RESPONSE_BODY);
         int statusCode = reference.get().getResponseCode();
