@@ -2,7 +2,7 @@
 package com.networknt.scheduler.handler;
 
 import com.networknt.client.Http2Client;
-import com.networknt.client.simplepool.SimpleConnectionHolder;
+import com.networknt.client.simplepool.SimpleConnectionState;
 import com.networknt.exception.ClientException;
 import io.undertow.UndertowOptions;
 import io.undertow.client.ClientConnection;
@@ -39,7 +39,7 @@ public class SchedulersGetHandlerTest {
 
         final Http2Client client = Http2Client.getInstance();
         final CountDownLatch latch = new CountDownLatch(1);
-        final SimpleConnectionHolder.ConnectionToken connectionToken;
+        final SimpleConnectionState.ConnectionToken connectionToken;
         try {
             if (enableHttps) {
                 connectionToken = client.borrow(new URI(url), Http2Client.WORKER, client.getDefaultXnioSsl(),
