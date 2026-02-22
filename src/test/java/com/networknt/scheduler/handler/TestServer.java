@@ -1,7 +1,9 @@
 
 package com.networknt.scheduler.handler;
 
-import org.junit.rules.ExternalResource;
+import org.junit.jupiter.api.extension.BeforeAllCallback;
+import org.junit.jupiter.api.extension.AfterAllCallback;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -9,7 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.networknt.server.Server;
 import com.networknt.server.ServerConfig;
 
-public class TestServer extends ExternalResource {
+public class TestServer implements BeforeAllCallback, AfterAllCallback {
     static final Logger logger = LoggerFactory.getLogger(TestServer.class);
 
     private static final AtomicInteger refCount = new AtomicInteger(0);
@@ -30,7 +32,7 @@ public class TestServer extends ExternalResource {
     }
 
     @Override
-    protected void before() {
+    public void beforeAll(ExtensionContext context) throws Exception {
         try {
             if (refCount.get() == 0) {
                 Server.init();
@@ -40,10 +42,17 @@ public class TestServer extends ExternalResource {
         finally {
             refCount.getAndIncrement();
         }
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> clean()));
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                afterAll(null);
+            } catch (Exception e) {
+                logger.error("Exception in shutdown hook", e);
+            }
+        }));
     }
 
-    protected void clean() {
+    @Override
+    public void afterAll(ExtensionContext context) throws Exception {
         refCount.getAndDecrement();
         if (refCount.get() == 0) {
             Server.stop();
