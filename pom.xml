@@ -285,11 +285,6 @@
             <artifactId>kafka-streams</artifactId>
             <version>${version.light-4j}</version>
         </dependency>
-        <dependency>
-            <groupId>net.lightapi</groupId>
-            <artifactId>portal-event</artifactId>
-            <version>${version.light-4j}</version>
-        </dependency>
 
 
         <dependency>
